@@ -44,6 +44,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 	serializer_class = SerialProductForAdd
 	permission_classes = (permissions.IsAuthenticated,)
 
+	@cached('/data/something_hard')
 	def list(self, request):
 		queryset = Product.objects.all()
 		serializer = SerialProduct(queryset, many=True)
@@ -57,7 +58,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)	
 
 	def retrieve(self, request, pk=None):
-		queryset = Category.objects.all()
+		queryset = Product.objects.all()
 		get_categ = get_object_or_404(queryset, pk=pk)
 		serializer = SerialProduct(get_categ)
 		return Response(serializer.data)

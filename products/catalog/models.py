@@ -21,6 +21,7 @@ class Product(models.Model):
 	description = models.TextField()
 	category = models.ForeignKey(Category)
 	price = models.DecimalField(max_digits=19, decimal_places=2)
+	image_url = models.ImageField(upload_to='images/product_image', blank=True, null=True)
 
 	def __unicode__(self):		
 		return '{0} - {1}'.format(self.pk, self.name)
