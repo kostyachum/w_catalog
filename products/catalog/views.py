@@ -8,6 +8,19 @@ import django_filters
 from rest_framework import filters
 import mptt
 
+import requests
+from cacheback.base import Job
+from cacheback.decorators import cacheback
+
+
+class UserTweets(Job):
+    lifetime = 60*20
+    fetch_on_miss = False
+
+    def fetch(self):
+        url = "/products/"
+        return requests.get(url).json
+
 
 class ProductFilter(django_filters.FilterSet):
 
@@ -44,7 +57,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 	serializer_class = SerialProductForAdd
 	permission_classes = (permissions.IsAuthenticated,)
 
-	@cached('/data/something_hard')
+	#@cacheback()
 	def list(self, request):
 		queryset = Product.objects.all()
 		serializer = SerialProduct(queryset, many=True)
