@@ -10,26 +10,23 @@ class SerialCategory(serializers.ModelSerializer):
 		fields = ['pk', 'name', 'parent']
 
 class SerialProductForAdd(serializers.ModelSerializer):
+	url = serializers.URLField(read_only=True)
 
 	class Meta:
 		model = Product
-		fields = ['pk','name', 'description', 'category', 'price', 'image_url']	
+		fields = ['pk','name', 'description', 'category', 'price', 'image_url', 'url']	
 
-class SerialProduct(serializers.ModelSerializer):
-
+class SerialProduct(serializers.HyperlinkedModelSerializer):
 	category = serializers.ReadOnlyField(source='category_name')
-	#url = serializers.HyperlinkedRelatedField(many=True, view_name='product_detail', read_only=True)
-	#url = GiveAbsolute(source="product_detail")
 
 	class Meta:
 		model = Product
-		fields = ('pk','name', 'category', 'price', 'image_url')
+		fields = ['pk', 'name', 'category', 'price', 'image_url', 'url']
+
 
 class SerialProductDetail(serializers.ModelSerializer):
-
 	category = serializers.ReadOnlyField(source='category_name')
 
 	class Meta:
 		model = Product
 		fields = ['pk','name', 'description', 'category', 'price', 'image_url']
-

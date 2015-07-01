@@ -33,7 +33,7 @@ filter_category = views.CategoryViewFilter.as_view({
 urlpatterns = [
 	url(r'^$', list_product, name="main"),
 	url(r'^products/$', list_product, name="main"),
-	url(r'^products/(?P<pk>\d+)/$', product_detail),
+	url(r'^products/(?P<pk>\d+)/$', product_detail, name="product_detail"),
 	url(r'^category/$', list_category),
 	url(r'^category/(?P<pk>\d+)/$', category_detail),
 	url(r'^products/search/$', views.ProductList.as_view()),

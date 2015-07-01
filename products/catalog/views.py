@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from catalog.models import Category, Product
-from catalog.serializers import SerialProduct, SerialProductForAdd, SerialCategory  
+from catalog.serializers import SerialProduct, SerialProductDetail, SerialProductForAdd, SerialCategory  
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status, serializers, generics
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse, reverse_lazy
 import django_filters
 from rest_framework import filters
 import mptt
@@ -14,12 +16,12 @@ from cacheback.decorators import cacheback
 
 
 class UserTweets(Job):
-    lifetime = 60*20
-    fetch_on_miss = False
+	lifetime = 60*20
+	fetch_on_miss = False
 
-    def fetch(self):
-        url = "/products/"
-        return requests.get(url).json
+	def fetch(self):
+		url = "/products/"
+		return requests.get(url).json
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -47,6 +49,12 @@ class ProductList(generics.ListAPIView):
 	ordering_fields = ('price')
 
 
+@api_view(('GET',))
+def api_root(request, format=None):
+	return Response({
+		'url': reverse('product_detail', request=request, format=format),
+	})
+
 class ProductViewSet(viewsets.ModelViewSet):
 	"""
 	Get list of products
@@ -57,25 +65,37 @@ class ProductViewSet(viewsets.ModelViewSet):
 	serializer_class = SerialProductForAdd
 	permission_classes = (permissions.IsAuthenticated,)
 
-	#@cacheback()
 	def list(self, request):
 		queryset = Product.objects.all()
 		serializer = SerialProduct(queryset, many=True)
 		return Response(serializer.data)
 
-	def create(self, request):
-		serializer = SerialProductForAdd(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)	
+	# def create(self, request):
+	# 	serializer = SerialProductForAdd(data=request.data)
+	# 	print serializer
+	# 	if serializer.is_valid():
+	# 		serializer.save()
+
+	# 		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	# 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)	
+
+	def create(self, request, *args, **kwargs):
+		cat = Category.objects.get(id=request.data['category'])
+		serializer = Product(name=request.data['name'], 
+							description=request.data['description'], 
+							category=cat, 
+							price=request.data['price'],
+					)
+		serializer.save()
+		serializer.url = reverse_lazy('product_detail', request=request, kwargs={'pk': serializer.pk})
+		serializer.save()
+		return Response(status=status.HTTP_201_CREATED)
 
 	def retrieve(self, request, pk=None):
 		queryset = Product.objects.all()
 		get_categ = get_object_or_404(queryset, pk=pk)
-		serializer = SerialProduct(get_categ)
+		serializer = SerialProductDetail(get_categ)
 		return Response(serializer.data)
-
 
 class CategoryViewFilter(viewsets.ModelViewSet):
 	"""
