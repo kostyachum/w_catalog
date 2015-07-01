@@ -2,6 +2,9 @@ from django.db import models
 from mptt.models import MPTTModel
 import mptt
 from django .contrib.contenttypes.models import ContentType
+from django.dispatch import receiver
+from django.db.models.signals import post_save, post_delete
+
 
 class Category(models.Model):
 	name = models.CharField(max_length=100)
@@ -27,5 +30,19 @@ class Product(models.Model):
 	def __unicode__(self):		
 		return '{0} - {1}'.format(self.pk, self.name)
 
-	def category_name(self):	
+	def category_family(self):	
 		return self.category.get_family().values()
+
+# @receiver(post_save, sender=Product)
+# def on_change(instance, **kwargs):
+# 	#cache.set('product::%(id)d' % {'id': instance.id}, instance)
+# 	print "wwwwww"
+# 	job = Product()
+# 	job.invalidate(name)
+
+# @receiver(post_delete, sender=Product)
+# def on_delete(instance, **kwargs):
+# 	#cache.delete('product::%(id)d' % {'id': instance.id})
+# 	print "qqq"
+# 	job = Product()
+# 	job.delete(name)

@@ -49,7 +49,7 @@ INSTALLED_APPS = (
     "cacheback",
     'catalog',
     'user_app',
-
+    'gevent'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -132,6 +132,29 @@ DATABASES = {
     }
 }
 
+# CELERY_ALWAYS_EAGER = True
+
+BROKER_URL = "amqp://guest@127.0.0.1:5672/"
+
+# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/2"
+
+CELERY_TASK_RESULT_EXPIRES = 14400
+
+CELERYD_POOL = 'gevent'
+
+CELERY_SEND_TASK_ERROR_EMAILS = False
+
+CELERYD_MAX_TASKS_PER_CHILD = 1
+
+CELERY_DISABLE_RATE_LIMITS = False
+
+CELERYD_CONCURRENCY = 5
+
+CELERY_ENABLE_UTC = True
+
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
+
+CELERY_SEND_TASK_SENT_EVENT = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

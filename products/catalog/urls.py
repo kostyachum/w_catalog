@@ -37,5 +37,5 @@ urlpatterns = [
 	url(r'^category/$', list_category),
 	url(r'^category/(?P<pk>\d+)/$', category_detail),
 	url(r'^products/search/$', views.ProductList.as_view()),
-	url(r'^category/search/(?P<name>[0-9a-zA-Z_-]+)/$',filter_category)
+	url(r'^category/search/(?P<name>[0-9a-zA-Z_-]+)/$',filter_category),
 ]

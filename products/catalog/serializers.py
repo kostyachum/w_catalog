@@ -25,7 +25,7 @@ class SerialProduct(serializers.HyperlinkedModelSerializer):
 
 
 class SerialProductDetail(serializers.ModelSerializer):
-	category = serializers.ReadOnlyField(source='category_name')
+	category = serializers.ReadOnlyField(source='category__name')
 
 	class Meta:
 		model = Product
