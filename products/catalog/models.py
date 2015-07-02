@@ -30,8 +30,8 @@ class Product(models.Model):
 	def __unicode__(self):		
 		return '{0} - {1}'.format(self.pk, self.name)
 
-	def category_family(self):	
-		return self.category.get_family().values()
+	def category_name(self):	
+		return self.category.name
 
 # @receiver(post_save, sender=Product)
 # def on_change(instance, **kwargs):

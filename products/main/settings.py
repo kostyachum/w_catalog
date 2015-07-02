@@ -18,7 +18,17 @@ import djcelery
 djcelery.setup_loader()
 
 _PATH = os.path.abspath(os.path.dirname(__file__))
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = 'staticfiles'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'media'),
+)
+
 
 MEDIA_ROOT = os.path.join(_PATH, 'files', 'media')
 MEDIA_URL = '/media/'
@@ -47,9 +57,11 @@ INSTALLED_APPS = (
     'rest_framework_swagger',
     "djcelery",
     "cacheback",
+    'gevent',
+    'debug_toolbar',
+    'djangular',
     'catalog',
     'user_app',
-    'gevent'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -99,6 +111,29 @@ CACHES = {
     }
 }
 
+CELERY_ALWAYS_EAGER = True
+
+BROKER_URL = "amqp://guest@127.0.0.1:5672/"
+
+# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/2"
+
+CELERY_TASK_RESULT_EXPIRES = 14400
+
+CELERYD_POOL = 'gevent'
+
+CELERY_SEND_TASK_ERROR_EMAILS = False
+
+CELERYD_MAX_TASKS_PER_CHILD = 1
+
+CELERY_DISABLE_RATE_LIMITS = False
+
+CELERYD_CONCURRENCY = 5
+
+CELERY_ENABLE_UTC = True
+
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
+
+CELERY_SEND_TASK_SENT_EVENT = True
 
 LOGGING = {
     'version': 1,
@@ -132,30 +167,29 @@ DATABASES = {
     }
 }
 
-# CELERY_ALWAYS_EAGER = True
 
-BROKER_URL = "amqp://guest@127.0.0.1:5672/"
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+]
 
-# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/2"
-
-CELERY_TASK_RESULT_EXPIRES = 14400
-
-CELERYD_POOL = 'gevent'
-
-CELERY_SEND_TASK_ERROR_EMAILS = False
-
-CELERYD_MAX_TASKS_PER_CHILD = 1
-
-CELERY_DISABLE_RATE_LIMITS = False
-
-CELERYD_CONCURRENCY = 5
-
-CELERY_ENABLE_UTC = True
-
-CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
-
-CELERY_SEND_TASK_SENT_EVENT = True
-
+CONFIG_DEFAULTS = {
+    # Toolbar options
+    'RESULTS_CACHE_SIZE': 3,
+    'SHOW_COLLAPSED': True,
+    # Panel options
+    'SQL_WARNING_THRESHOLD': 100,   # milliseconds
+}
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -173,4 +207,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangular.finders.NamespacedAngularAppDirectoriesFinder'
+)

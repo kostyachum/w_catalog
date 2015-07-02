@@ -16,7 +16,7 @@ class SerialProductForAdd(serializers.ModelSerializer):
 		model = Product
 		fields = ['pk','name', 'description', 'category', 'price', 'image_url', 'url']	
 
-class SerialProduct(serializers.HyperlinkedModelSerializer):
+class SerialProduct(serializers.ModelSerializer):
 	category = serializers.ReadOnlyField(source='category_name')
 
 	class Meta:
@@ -25,7 +25,7 @@ class SerialProduct(serializers.HyperlinkedModelSerializer):
 
 
 class SerialProductDetail(serializers.ModelSerializer):
-	category = serializers.ReadOnlyField(source='category__name')
+	category = serializers.ReadOnlyField(source='category_name')
 
 	class Meta:
 		model = Product

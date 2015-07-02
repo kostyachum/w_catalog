@@ -9,10 +9,10 @@ from rest_framework.reverse import reverse, reverse_lazy
 import django_filters
 from rest_framework import filters
 import mptt
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 from catalog.mycache import ProductDetailJob, CategoryListJob
-from django.core.cache import cache
+from catalog.signals import invalidate_product, invalidate_category
+
+from django.views.generic import TemplateView
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -67,9 +67,11 @@ class ProductViewSet(viewsets.ModelViewSet):
 		return Response(status=status.HTTP_201_CREATED)
 
 	def retrieve(self, request, pk=None):
-		queryset = ProductDetailJob().get()
-		get_categ = get_object_or_404(queryset, pk=pk)
-		serializer = SerialProductDetail(get_categ)
+		try:
+			queryset = ProductDetailJob().get(pk=unicode(pk))
+			serializer = SerialProductDetail(queryset, many=False)
+		except Product.DoesNotExist:
+			return Response("no product")
 		return Response(serializer.data)
 
 		
@@ -77,14 +79,14 @@ class CategoryViewFilter(viewsets.ModelViewSet):
 	"""
 	Category search
 
-	name/horror	
+	/1/	
 	"""
 	serializer_class = SerialCategory
 	def filter(self, request, *args, **kwargs):
 		""" Returns  list by category"""
-
-		name = kwargs['name']
-		category = Category.objects.get(name=name)
+		print 
+		pk = kwargs['pk']
+		category = Category.objects.get(pk=pk)
 		children = category.get_descendants()
 		serializer = SerialCategory(children, many=True)
 		return Response(serializer.data)
@@ -113,18 +115,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)	
 
 	def retrieve(self, request, pk=None):
-		queryset = Category.objects.all()
-		get_categ = get_object_or_404(queryset, pk=pk)
-		serializer = SerialCategory(get_categ)
+		try:
+			queryset = Category.objects.get(pk=pk)
+			serializer = SerialCategory(queryset, many=False)
+		except Category.DoesNotExist:
+			return Response("no category like it")
 		return Response(serializer.data)	
 
-invalidate_signals = [post_delete, post_save]
 
-@receiver(invalidate_signals, sender=Product)
-def invalidate_product(sender, instance, **kwargs):
-	ProductDetailJob().invalidate(pk=instance.pk)
-
-
-@receiver(invalidate_signals, sender=Category)
-def invalidate_category(sender, instance, **kwargs):
-	CategoryListJob().invalidate()
+class ProductView(TemplateView):
+	def get_context_data(self, **kwargs):
+		context = super(ProductView, self).get_context_data(**kwargs)
+		# update the context
+		return context
