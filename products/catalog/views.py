@@ -15,6 +15,7 @@ from catalog.signals import invalidate_product, invalidate_category
 from django.views.generic import TemplateView
 
 
+
 class ProductFilter(django_filters.FilterSet):
 
 	price = django_filters.NumberFilter(name="price")
